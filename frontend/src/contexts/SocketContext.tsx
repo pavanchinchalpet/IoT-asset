@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { io, Socket } from 'socket.io-client'
 import { useAuth } from './AuthContext'
 
@@ -17,15 +18,21 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const [socket, setSocket] = useState<Socket | null>(null)
   const [connected, setConnected] = useState(false)
   const { user, token } = useAuth()
+  const pathname = usePathname()
+
+  // Only connect socket for dashboard routes
+  const needsSocket = pathname?.startsWith('/dashboard')
 
   useEffect(() => {
-    if (user && token) {
+    if (needsSocket && user && token && !socket) {
       console.log('🔌 Connecting to WebSocket server...')
       
       const newSocket = io(SOCKET_URL, {
         auth: {
           token
-        }
+        },
+        transports: ['websocket', 'polling'],
+        timeout: 5000,
       })
 
       newSocket.on('connect', () => {
@@ -49,15 +56,28 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
         console.log('🔌 Cleaning up WebSocket connection')
         newSocket.close()
       }
-    } else {
+    } else if (!needsSocket && socket) {
+      // Disconnect socket when not needed
+      console.log('🔌 Disconnecting WebSocket (not needed)')
+      socket.close()
+      setSocket(null)
+      setConnected(false)
+    } else if (!user && socket) {
       // Clean up socket when user logs out
+      socket.close()
+      setSocket(null)
+      setConnected(false)
+    }
+  }, [needsSocket, user, token, socket])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
       if (socket) {
         socket.close()
-        setSocket(null)
-        setConnected(false)
       }
     }
-  }, [user, token])
+  }, [socket])
 
   return (
     <SocketContext.Provider value={{ socket, connected }}>

@@ -25,9 +25,6 @@ import {
   TrendingUp, 
   TrendingDown, 
   Activity, 
-  Zap, 
-  Thermometer,
-  Settings,
   AlertTriangle,
   CheckCircle
 } from 'lucide-react'
@@ -161,7 +158,7 @@ export default function AnalyticsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400"></div>
       </div>
     )
   }
@@ -171,15 +168,15 @@ export default function AnalyticsPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h1>
-          <p className="text-gray-600">Advanced insights and performance metrics</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Analytics Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-400">Advanced insights and performance metrics</p>
         </div>
         
         <div className="flex items-center space-x-4">
           <select
             value={timeRange}
             onChange={(e) => setTimeRange(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="input"
           >
             <option value="1h">Last Hour</option>
             <option value="24h">Last 24 Hours</option>
@@ -192,29 +189,29 @@ export default function AnalyticsPage() {
       {/* Efficiency Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {data.efficiencyMetrics.map((metric) => (
-          <div key={metric.metric} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div key={metric.metric} className="card p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500">{metric.metric}</p>
-                <p className="text-2xl font-bold text-gray-900">{metric.value}%</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{metric.metric}</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{metric.value}%</p>
               </div>
               <div className={`p-3 rounded-lg ${
-                metric.trend === 'up' ? 'bg-green-50' : 'bg-red-50'
+                metric.trend === 'up' ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'
               }`}>
                 {metric.trend === 'up' ? (
-                  <TrendingUp className="h-6 w-6 text-green-600" />
+                  <TrendingUp className="h-6 w-6 text-green-600 dark:text-green-400" />
                 ) : (
-                  <TrendingDown className="h-6 w-6 text-red-600" />
+                  <TrendingDown className="h-6 w-6 text-red-600 dark:text-red-400" />
                 )}
               </div>
             </div>
             <div className="mt-4 flex items-center">
               <span className={`text-sm font-medium ${
-                metric.trend === 'up' ? 'text-green-600' : 'text-red-600'
+                metric.trend === 'up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
               }`}>
                 {metric.change > 0 ? '+' : ''}{metric.change}%
               </span>
-              <span className="text-sm text-gray-500 ml-2">vs last period</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">vs last period</span>
             </div>
           </div>
         ))}
@@ -223,20 +220,21 @@ export default function AnalyticsPage() {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* Device Performance */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Device Performance</h3>
+        <div className="card p-6">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Device Performance</h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.devicePerformance}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="name" stroke="#6b7280" fontSize={12} />
-                <YAxis stroke="#6b7280" fontSize={12} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" className="dark:stroke-gray-600" />
+                <XAxis dataKey="name" stroke="#6b7280" className="dark:stroke-gray-400" fontSize={12} />
+                <YAxis stroke="#6b7280" className="dark:stroke-gray-400" fontSize={12} />
                 <Tooltip 
                   contentStyle={{
                     backgroundColor: 'white',
                     border: '1px solid #e5e7eb',
                     borderRadius: '8px'
                   }}
+                  wrapperClassName="dark:[&_.recharts-tooltip-wrapper]:!bg-gray-800 dark:[&_.recharts-tooltip-wrapper]:!border-gray-600 dark:[&_.recharts-tooltip-wrapper]:!text-gray-100"
                 />
                 <Legend />
                 <Bar dataKey="uptime" fill="#10b981" name="Uptime %" />
@@ -247,20 +245,21 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Telemetry Trends */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Telemetry Trends</h3>
+        <div className="card p-6">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Telemetry Trends</h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={data.telemetryTrends}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="hour" stroke="#6b7280" fontSize={12} />
-                <YAxis stroke="#6b7280" fontSize={12} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" className="dark:stroke-gray-600" />
+                <XAxis dataKey="hour" stroke="#6b7280" className="dark:stroke-gray-400" fontSize={12} />
+                <YAxis stroke="#6b7280" className="dark:stroke-gray-400" fontSize={12} />
                 <Tooltip 
                   contentStyle={{
                     backgroundColor: 'white',
                     border: '1px solid #e5e7eb',
                     borderRadius: '8px'
                   }}
+                  wrapperClassName="dark:[&_.recharts-tooltip-wrapper]:!bg-gray-800 dark:[&_.recharts-tooltip-wrapper]:!border-gray-600 dark:[&_.recharts-tooltip-wrapper]:!text-gray-100"
                 />
                 <Legend />
                 <Line type="monotone" dataKey="temperature" stroke="#ef4444" strokeWidth={2} name="Temperature (°C)" />
@@ -271,8 +270,8 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Device Type Distribution */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Device Distribution</h3>
+        <div className="card p-6">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Device Distribution</h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -297,20 +296,21 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Alerts Over Time */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Alerts Trend</h3>
+        <div className="card p-6">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Alerts Trend</h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data.alertsOverTime}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="day" stroke="#6b7280" fontSize={12} />
-                <YAxis stroke="#6b7280" fontSize={12} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" className="dark:stroke-gray-600" />
+                <XAxis dataKey="day" stroke="#6b7280" className="dark:stroke-gray-400" fontSize={12} />
+                <YAxis stroke="#6b7280" className="dark:stroke-gray-400" fontSize={12} />
                 <Tooltip 
                   contentStyle={{
                     backgroundColor: 'white',
                     border: '1px solid #e5e7eb',
                     borderRadius: '8px'
                   }}
+                  wrapperClassName="dark:[&_.recharts-tooltip-wrapper]:!bg-gray-800 dark:[&_.recharts-tooltip-wrapper]:!border-gray-600 dark:[&_.recharts-tooltip-wrapper]:!text-gray-100"
                 />
                 <Legend />
                 <Area type="monotone" dataKey="critical" stackId="1" stroke="#ef4444" fill="#ef4444" name="Critical" />
@@ -323,45 +323,45 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Device Status Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Device Performance Summary</h3>
+      <div className="card">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Device Performance Summary</h3>
         </div>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Device
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Uptime
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Efficiency
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Data Points
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {data.devicePerformance.map((device, index) => (
-                <tr key={index} className="hover:bg-gray-50">
+                <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <Activity className="h-5 w-5 text-gray-400 mr-3" />
-                      <div className="text-sm font-medium text-gray-900">{device.name}</div>
+                      <Activity className="h-5 w-5 text-gray-400 dark:text-gray-500 mr-3" />
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{device.name}</div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       device.status === 'Online' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300' 
+                        : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300'
                     }`}>
                       {device.status === 'Online' ? (
                         <CheckCircle className="w-3 h-3 mr-1" />
@@ -371,13 +371,13 @@ export default function AnalyticsPage() {
                       {device.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                     {device.uptime.toFixed(1)}%
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                     {device.efficiency.toFixed(1)}%
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                     {device.dataPoints.toLocaleString()}
                   </td>
                 </tr>

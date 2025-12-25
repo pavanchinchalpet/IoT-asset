@@ -17,29 +17,29 @@ export default function StatsCards({ stats }: StatsCardsProps) {
       name: 'Total Devices',
       value: stats.total,
       icon: Cpu,
-      color: 'text-primary-600',
-      bgColor: 'bg-primary-50'
+      color: 'text-blue-600 dark:text-blue-400',
+      bgColor: 'bg-blue-50 dark:bg-blue-900/20'
     },
     {
       name: 'Online Devices',
       value: stats.online,
       icon: Wifi,
-      color: 'text-success-600',
-      bgColor: 'bg-success-50'
+      color: 'text-green-600 dark:text-green-400',
+      bgColor: 'bg-green-50 dark:bg-green-900/20'
     },
     {
       name: 'Offline Devices',
       value: stats.offline,
       icon: WifiOff,
-      color: 'text-danger-600',
-      bgColor: 'bg-danger-50'
+      color: 'text-red-600 dark:text-red-400',
+      bgColor: 'bg-red-50 dark:bg-red-900/20'
     },
     {
       name: 'Data Points',
       value: stats.telemetryCount.toLocaleString(),
       icon: BarChart3,
-      color: 'text-warning-600',
-      bgColor: 'bg-warning-50'
+      color: 'text-yellow-600 dark:text-yellow-400',
+      bgColor: 'bg-yellow-50 dark:bg-yellow-900/20'
     }
   ]
 
@@ -55,10 +55,10 @@ export default function StatsCards({ stats }: StatsCardsProps) {
             </div>
             <div className="ml-5 w-0 flex-1">
               <dl>
-                <dt className="text-sm font-medium text-gray-500 truncate">
+                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
                   {card.name}
                 </dt>
-                <dd className="text-2xl font-bold text-gray-900">
+                <dd className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {card.value}
                 </dd>
               </dl>

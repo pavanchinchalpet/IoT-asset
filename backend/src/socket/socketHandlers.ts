@@ -55,7 +55,7 @@ export const setupSocketHandlers = (io: Server): void => {
       }
     });
 
-    // Telemetry data reception
+    // Telemetry data reception with batching
     socket.on('telemetry:data', async (data: TelemetryData) => {
       try {
         const { deviceId, metrics } = data;
@@ -65,19 +65,15 @@ export const setupSocketHandlers = (io: Server): void => {
           return;
         }
 
-        // Save telemetry data
-        const telemetryRecords = await Promise.all(
-          metrics.map(metric => 
-            prisma.telemetry.create({
-              data: {
-                deviceId,
-                metric: metric.name,
-                value: metric.value,
-                unit: metric.unit || null
-              }
-            })
-          )
-        );
+        // Batch create telemetry records for better performance
+        const telemetryRecords = await prisma.telemetry.createMany({
+          data: metrics.map(metric => ({
+            deviceId,
+            metric: metric.name,
+            value: metric.value,
+            unit: metric.unit || null
+          }))
+        });
 
         // Update device last seen
         await prisma.device.update({
@@ -85,10 +81,20 @@ export const setupSocketHandlers = (io: Server): void => {
           data: { lastSeenAt: new Date() }
         });
 
+        // Get the created records for broadcasting
+        const createdRecords = await prisma.telemetry.findMany({
+          where: {
+            deviceId,
+            createdAt: { gte: new Date(Date.now() - 1000) } // Last second
+          },
+          orderBy: { createdAt: 'desc' },
+          take: metrics.length
+        });
+
         // Broadcast telemetry to dashboard clients
         io.emit('telemetry:update', {
           deviceId,
-          data: telemetryRecords,
+          data: createdRecords,
           timestamp: new Date()
         });
 
@@ -146,7 +152,7 @@ export const setupSocketHandlers = (io: Server): void => {
     });
   });
 
-  // Periodic cleanup of stale devices
+  // Periodic cleanup of stale devices (optimized)
   setInterval(async () => {
     try {
       const staleThreshold = new Date(Date.now() - 5 * 60 * 1000); // 5 minutes
@@ -155,10 +161,15 @@ export const setupSocketHandlers = (io: Server): void => {
         where: {
           isOnline: true,
           lastSeenAt: { lt: staleThreshold }
+        },
+        select: {
+          id: true,
+          lastSeenAt: true
         }
       });
 
       if (staleDevices.length > 0) {
+        // Batch update for better performance
         await prisma.device.updateMany({
           where: {
             isOnline: true,

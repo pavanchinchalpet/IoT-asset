@@ -17,6 +17,7 @@ router.get('/device/:deviceId', authenticateToken, async (req: AuthenticatedRequ
     } = req.query as TelemetryQuery;
 
     const hoursAgo = new Date(Date.now() - parseInt(hours) * 60 * 60 * 1000);
+    const limitNum = Math.min(parseInt(limit), 5000); // Cap at 5000 for performance
 
     const where = {
       deviceId,
@@ -27,7 +28,14 @@ router.get('/device/:deviceId', authenticateToken, async (req: AuthenticatedRequ
     const telemetry = await prisma.telemetry.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-      take: parseInt(limit)
+      take: limitNum,
+      select: {
+        id: true,
+        metric: true,
+        value: true,
+        unit: true,
+        createdAt: true
+      }
     });
 
     res.json(telemetry);
@@ -41,10 +49,21 @@ router.get('/device/:deviceId', authenticateToken, async (req: AuthenticatedRequ
 router.get('/latest', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const devices = await prisma.device.findMany({
-      include: {
+      select: {
+        id: true,
+        name: true,
+        isOnline: true,
+        lastSeenAt: true,
         telemetry: {
           orderBy: { createdAt: 'desc' },
-          take: 1
+          take: 1,
+          select: {
+            id: true,
+            metric: true,
+            value: true,
+            unit: true,
+            createdAt: true
+          }
         }
       }
     });
@@ -82,7 +101,12 @@ router.get('/aggregate/:deviceId', authenticateToken, async (req: AuthenticatedR
         metric,
         createdAt: { gte: hoursAgo }
       },
-      orderBy: { createdAt: 'asc' }
+      orderBy: { createdAt: 'asc' },
+      select: {
+        id: true,
+        value: true,
+        createdAt: true
+      }
     });
 
     if (telemetry.length === 0) {

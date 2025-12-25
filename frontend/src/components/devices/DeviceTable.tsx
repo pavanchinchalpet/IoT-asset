@@ -61,15 +61,15 @@ export default function DeviceTable({
   const getDeviceTypeColor = (type: string) => {
     switch (type) {
       case 'temperature':
-        return 'bg-red-100 text-red-800'
+        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300'
       case 'motor':
-        return 'bg-blue-100 text-blue-800'
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300'
       case 'power':
-        return 'bg-yellow-100 text-yellow-800'
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300'
       case 'vibration':
-        return 'bg-purple-100 text-purple-800'
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300'
       default:
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
     }
   }
 
@@ -78,7 +78,7 @@ export default function DeviceTable({
       <div className="p-6">
         <div className="animate-pulse space-y-4">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-16 bg-gray-200 rounded"></div>
+            <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
           ))}
         </div>
       </div>
@@ -88,60 +88,60 @@ export default function DeviceTable({
   return (
     <div>
       {/* Table Header */}
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h3 className="text-lg font-medium text-gray-900">
+      <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
           Devices ({pagination.total})
         </h3>
       </div>
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Device
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Type
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Location
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Data Points
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Last Seen
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             {devices.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                <td colSpan={7} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                   No devices found matching your criteria.
                 </td>
               </tr>
             ) : (
               devices.map((device) => (
-                <tr key={device.id} className="hover:bg-gray-50">
+                <tr key={device.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="text-2xl mr-3">
                         {getDeviceTypeIcon(device.type)}
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                           {device.name}
                         </div>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
                           ID: {device.id.slice(0, 8)}...
                         </div>
                       </div>
@@ -156,7 +156,7 @@ export default function DeviceTable({
                     >
                       <span
                         className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
-                          device.isOnline ? 'bg-success-400' : 'bg-danger-400'
+                          device.isOnline ? 'bg-green-400' : 'bg-red-400'
                         }`}
                       />
                       {device.isOnline ? 'Online' : 'Offline'}
@@ -172,23 +172,23 @@ export default function DeviceTable({
                   </td>
                   
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center text-sm text-gray-900">
-                      <MapPin className="h-4 w-4 text-gray-400 mr-1" />
+                    <div className="flex items-center text-sm text-gray-900 dark:text-gray-100">
+                      <MapPin className="h-4 w-4 text-gray-400 dark:text-gray-500 mr-1" />
                       {device.location || 'Unknown'}
                     </div>
                   </td>
                   
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center text-sm text-gray-900">
-                      <BarChart3 className="h-4 w-4 text-gray-400 mr-1" />
+                    <div className="flex items-center text-sm text-gray-900 dark:text-gray-100">
+                      <BarChart3 className="h-4 w-4 text-gray-400 dark:text-gray-500 mr-1" />
                       {device._count.telemetry.toLocaleString()}
                     </div>
                   </td>
                   
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     {device.lastSeenAt ? (
                       <div className="flex items-center">
-                        <Clock className="h-4 w-4 text-gray-400 mr-1" />
+                        <Clock className="h-4 w-4 text-gray-400 dark:text-gray-500 mr-1" />
                         {formatDistanceToNow(new Date(device.lastSeenAt), { addSuffix: true })}
                       </div>
                     ) : (
@@ -200,7 +200,7 @@ export default function DeviceTable({
                     <div className="flex items-center justify-end space-x-2">
                       <Link
                         href={`/dashboard/devices/${device.id}`}
-                        className="text-primary-600 hover:text-primary-900"
+                        className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
                         title="View Details"
                       >
                         <Eye className="h-4 w-4" />
@@ -210,7 +210,7 @@ export default function DeviceTable({
                         <>
                           <button
                             onClick={() => onEdit(device)}
-                            className="text-gray-600 hover:text-gray-900"
+                            className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
                             title="Edit Device"
                           >
                             <Edit className="h-4 w-4" />
@@ -218,7 +218,7 @@ export default function DeviceTable({
                           
                           <button
                             onClick={() => onDelete(device.id)}
-                            className="text-danger-600 hover:text-danger-900"
+                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                             title="Delete Device"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -236,9 +236,9 @@ export default function DeviceTable({
 
       {/* Pagination */}
       {pagination.pages > 1 && (
-        <div className="px-6 py-4 border-t border-gray-200">
+        <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-700">
+            <div className="text-sm text-gray-700 dark:text-gray-300">
               Showing {((pagination.page - 1) * pagination.limit) + 1} to{' '}
               {Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
               {pagination.total} results
@@ -262,8 +262,8 @@ export default function DeviceTable({
                       onClick={() => onPageChange(page)}
                       className={`px-3 py-1 rounded text-sm ${
                         pagination.page === page
-                          ? 'bg-primary-600 text-white'
-                          : 'text-gray-700 hover:bg-gray-100'
+                          ? 'bg-blue-600 text-white dark:bg-blue-500'
+                          : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
                       }`}
                     >
                       {page}

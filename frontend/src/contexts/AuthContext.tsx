@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import axios from 'axios'
 
 interface User {
@@ -24,19 +25,32 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [token, setToken] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
+  const [initialized, setInitialized] = useState(false)
+  const pathname = usePathname()
+
+  // Only initialize auth on protected routes
+  const isProtectedRoute = pathname?.startsWith('/dashboard') || pathname === '/login'
 
   useEffect(() => {
-    // Check for stored token on mount
-    const storedToken = localStorage.getItem('token')
-    if (storedToken) {
-      setToken(storedToken)
-      // Verify token with server
-      verifyToken(storedToken)
-    } else {
+    if (isProtectedRoute && !initialized) {
+      setLoading(true)
+      setInitialized(true)
+      
+      // Check for stored token on mount
+      const storedToken = localStorage.getItem('token')
+      if (storedToken) {
+        setToken(storedToken)
+        // Verify token with server
+        verifyToken(storedToken)
+      } else {
+        setLoading(false)
+      }
+    } else if (!isProtectedRoute) {
+      // For landing page, don't load auth
       setLoading(false)
     }
-  }, [])
+  }, [isProtectedRoute, initialized])
 
   const verifyToken = async (token: string) => {
     try {
