@@ -1,0 +1,159 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useSocket } from '@/contexts/SocketContext'
+import { useAuth } from '@/contexts/AuthContext'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import axios from 'axios'
+import { format } from 'date-fns'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+
+interface TelemetryData {
+  id: string
+  value: number
+  createdAt: string
+}
+
+interface RealTimeChartProps {
+  title: string
+  deviceId: string
+  metric: string
+  unit: string
+  color: string
+}
+
+export default function RealTimeChart({ title, deviceId, metric, unit, color }: RealTimeChartProps) {
+  const { token } = useAuth()
+  const { socket } = useSocket()
+  const [data, setData] = useState<TelemetryData[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (token) {
+      fetchInitialData()
+    }
+  }, [token, deviceId, metric])
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('telemetry:update', (update) => {
+        if (update.deviceId === deviceId) {
+          const relevantData = update.data.filter((item: any) => item.metric === metric)
+          if (relevantData.length > 0) {
+            setData(prev => {
+              const newData = [...prev, ...relevantData]
+              // Keep only last 50 data points for performance
+              return newData.slice(-50)
+            })
+          }
+        }
+      })
+
+      return () => {
+        socket.off('telemetry:update')
+      }
+    }
+  }, [socket, deviceId, metric])
+
+  const fetchInitialData = async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/api/telemetry/device/${deviceId}?metric=${metric}&hours=1&limit=50`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      )
+      setData(response.data.reverse()) // Reverse to show chronological order
+    } catch (error) {
+      console.error('Failed to fetch telemetry data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const formatXAxis = (tickItem: string) => {
+    return format(new Date(tickItem), 'HH:mm')
+  }
+
+  const formatTooltip = (value: number, name: string, props: any) => {
+    return [`${value.toFixed(2)} ${unit}`, metric]
+  }
+
+  const formatTooltipLabel = (label: string) => {
+    return format(new Date(label), 'MMM dd, HH:mm:ss')
+  }
+
+  if (loading) {
+    return (
+      <div className="card p-6">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">{title}</h3>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="card p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-medium text-gray-900">{title}</h3>
+        <div className="flex items-center space-x-2">
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }}></div>
+          <span className="text-sm text-gray-500">{metric} ({unit})</span>
+        </div>
+      </div>
+      
+      {data.length === 0 ? (
+        <div className="flex items-center justify-center h-64 text-gray-500">
+          <div className="text-center">
+            <p>No data available</p>
+            <p className="text-sm">Waiting for telemetry data...</p>
+          </div>
+        </div>
+      ) : (
+        <div className="h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis 
+                dataKey="createdAt" 
+                tickFormatter={formatXAxis}
+                stroke="#6b7280"
+                fontSize={12}
+              />
+              <YAxis 
+                stroke="#6b7280"
+                fontSize={12}
+                tickFormatter={(value) => `${value}${unit}`}
+              />
+              <Tooltip 
+                formatter={formatTooltip}
+                labelFormatter={formatTooltipLabel}
+                contentStyle={{
+                  backgroundColor: 'white',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="value" 
+                stroke={color}
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 4, fill: color }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+      
+      <div className="mt-4 text-xs text-gray-500">
+        Last updated: {data.length > 0 ? format(new Date(data[data.length - 1].createdAt), 'HH:mm:ss') : 'Never'}
+      </div>
+    </div>
+  )
+}
