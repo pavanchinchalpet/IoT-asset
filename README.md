@@ -188,16 +188,6 @@ NEXT_PUBLIC_ENVIRONMENT=development
 NEXT_PUBLIC_DEBUG_MODE=true
 ```
 
-## 👥 Default User Accounts
-
-After running `npm run db:seed`, you can login with:
-
-| Role | Email | Password | Permissions |
-|------|-------|----------|-------------|
-| **Admin** | admin@iot.com | admin123 | Full access, user management |
-| **Operator** | operator@iot.com | operator123 | Device control, monitoring |
-| **Viewer** | viewer@iot.com | viewer123 | Read-only access |
-
 ## 📊 Database Schema
 
 ### Tables

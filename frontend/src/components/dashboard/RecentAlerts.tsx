@@ -36,6 +36,27 @@ export default function RecentAlerts() {
       message: 'Communication timeout',
       deviceName: 'Vibration Sensor',
       timestamp: new Date(Date.now() - 30 * 60 * 1000) // 30 minutes ago
+    },
+    {
+      id: '4',
+      type: 'warning',
+      message: 'High power consumption detected',
+      deviceName: 'Crusher Motor #2',
+      timestamp: new Date(Date.now() - 45 * 60 * 1000) // 45 minutes ago
+    },
+    {
+      id: '5',
+      type: 'info',
+      message: 'Maintenance schedule updated',
+      deviceName: 'Conveyor Belt #3',
+      timestamp: new Date(Date.now() - 60 * 60 * 1000) // 1 hour ago
+    },
+    {
+      id: '6',
+      type: 'warning',
+      message: 'Vibration levels elevated',
+      deviceName: 'Mill Vibration Sensor',
+      timestamp: new Date(Date.now() - 90 * 60 * 1000) // 1.5 hours ago
     }
   ])
 
@@ -95,11 +116,11 @@ export default function RecentAlerts() {
   const getAlertIcon = (type: string) => {
     switch (type) {
       case 'error':
-        return <XCircle className="h-5 w-5 text-danger-500" />
+        return <XCircle className="h-5 w-5 text-red-500" />
       case 'warning':
-        return <AlertTriangle className="h-5 w-5 text-warning-500" />
+        return <AlertTriangle className="h-5 w-5 text-yellow-500" />
       case 'info':
-        return <CheckCircle className="h-5 w-5 text-primary-500" />
+        return <CheckCircle className="h-5 w-5 text-blue-500" />
       default:
         return <Clock className="h-5 w-5 text-gray-500" />
     }
@@ -108,29 +129,29 @@ export default function RecentAlerts() {
   const getAlertBorderColor = (type: string) => {
     switch (type) {
       case 'error':
-        return 'border-l-danger-500'
+        return 'border-l-red-500'
       case 'warning':
-        return 'border-l-warning-500'
+        return 'border-l-yellow-500'
       case 'info':
-        return 'border-l-primary-500'
+        return 'border-l-blue-500'
       default:
         return 'border-l-gray-500'
     }
   }
 
   return (
-    <div className="card">
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h3 className="text-lg font-medium text-gray-900">Recent Alerts</h3>
-        <p className="text-sm text-gray-500">Latest system notifications and warnings</p>
+    <div className="card flex flex-col w-full h-full">
+      <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Recent Alerts</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Latest system notifications and warnings</p>
       </div>
       
-      <div className="p-6">
+      <div className="flex-1 p-6">
         {alerts.length === 0 ? (
-          <div className="text-center py-8">
-            <CheckCircle className="mx-auto h-12 w-12 text-success-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">All systems normal</h3>
-            <p className="mt-1 text-sm text-gray-500">
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <CheckCircle className="h-12 w-12 text-green-400 dark:text-green-500 mb-3" />
+            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">All systems normal</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               No recent alerts or warnings.
             </p>
           </div>
@@ -139,22 +160,22 @@ export default function RecentAlerts() {
             {alerts.map((alert) => (
               <div
                 key={alert.id}
-                className={`border-l-4 ${getAlertBorderColor(alert.type)} bg-gray-50 p-3 rounded-r-lg`}
+                className={`border-l-4 ${getAlertBorderColor(alert.type)} bg-gray-50 dark:bg-gray-700 p-3 rounded-r-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors`}
               >
                 <div className="flex items-start">
-                  <div className="flex-shrink-0">
+                  <div className="flex-shrink-0 mt-0.5">
                     {getAlertIcon(alert.type)}
                   </div>
-                  <div className="ml-3 flex-1">
-                    <p className="text-sm font-medium text-gray-900">
+                  <div className="ml-3 flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 leading-tight">
                       {alert.message}
                     </p>
                     {alert.deviceName && (
-                      <p className="text-xs text-gray-600 mt-1">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 truncate">
                         {alert.deviceName}
                       </p>
                     )}
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
                       {formatDistanceToNow(alert.timestamp, { addSuffix: true })}
                     </p>
                   </div>
