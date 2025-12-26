@@ -1,7 +1,7 @@
 import express, { Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { authenticateToken } from '../middleware/auth';
-import { AuthenticatedRequest, TelemetryQuery } from '../types';
+import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
+import { TelemetryQuery } from '../types';
 
 const router = express.Router();
 const prisma = new PrismaClient();

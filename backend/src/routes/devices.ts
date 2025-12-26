@@ -1,7 +1,7 @@
 import express, { Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { authenticateToken, requireRole } from '../middleware/auth';
-import { AuthenticatedRequest, DeviceQuery, DeviceStats } from '../types';
+import { authenticateToken, requireRole, AuthenticatedRequest } from '../middleware/auth';
+import { DeviceQuery, DeviceStats } from '../types';
 
 const router = express.Router();
 const prisma = new PrismaClient();

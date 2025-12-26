@@ -4,10 +4,9 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-interface AuthenticatedRequest extends Request {
+export interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
-    email: string;
     role: string;
   };
 }
@@ -41,7 +40,7 @@ export const authenticateToken = async (
       return;
     }
 
-    req.user = user;
+    req.user = { id: user.id, role: user.role };
     next();
   } catch (error) {
     res.status(403).json({ error: 'Invalid or expired token' });
