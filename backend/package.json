@@ -7,6 +7,7 @@
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
+    "start:prod": "npm run build && npm start",
     "simulate": "ts-node src/simulator/runSimulation.ts",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
