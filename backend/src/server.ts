@@ -93,6 +93,20 @@ app.get('/api/cors-test', (req, res) => {
   });
 });
 
+// Socket.IO test endpoint
+app.get('/api/socket-test', (req, res) => {
+  res.json({
+    message: 'Socket.IO server is running',
+    connectedClients: io.engine.clientsCount,
+    transports: ['polling', 'websocket'],
+    cors: {
+      origin: allowedOrigins,
+      credentials: true
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Socket.io setup
 setupSocketHandlers(io);
 
