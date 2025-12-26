@@ -26,17 +26,22 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (needsSocket && user && token && !socket) {
       console.log('🔌 Connecting to WebSocket server...')
+      console.log('Socket URL:', SOCKET_URL)
+      console.log('User:', user?.email)
+      console.log('Token exists:', !!token)
       
       const newSocket = io(SOCKET_URL, {
         auth: {
           token
         },
-        transports: ['polling', 'websocket'], // Try polling first, then websocket
-        timeout: 10000,
+        transports: ['polling'], // Use only polling for now to avoid WebSocket issues
+        timeout: 15000,
         forceNew: true,
         reconnection: true,
-        reconnectionDelay: 1000,
-        reconnectionAttempts: 5
+        reconnectionDelay: 2000,
+        reconnectionAttempts: 3,
+        upgrade: true, // Allow upgrade to WebSocket after initial connection
+        rememberUpgrade: false
       })
 
       newSocket.on('connect', () => {
