@@ -31,23 +31,38 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
         auth: {
           token
         },
-        transports: ['websocket', 'polling'],
-        timeout: 5000,
+        transports: ['polling', 'websocket'], // Try polling first, then websocket
+        timeout: 10000,
+        forceNew: true,
+        reconnection: true,
+        reconnectionDelay: 1000,
+        reconnectionAttempts: 5
       })
 
       newSocket.on('connect', () => {
         console.log('✅ Connected to WebSocket server')
+        console.log('Transport:', newSocket.io.engine.transport.name)
         setConnected(true)
       })
 
-      newSocket.on('disconnect', () => {
-        console.log('🔌 Disconnected from WebSocket server')
+      newSocket.on('disconnect', (reason) => {
+        console.log('🔌 Disconnected from WebSocket server:', reason)
         setConnected(false)
       })
 
       newSocket.on('connect_error', (error) => {
         console.error('❌ WebSocket connection error:', error)
+        console.log('Trying to reconnect...')
         setConnected(false)
+      })
+
+      newSocket.on('reconnect', (attemptNumber) => {
+        console.log('🔄 Reconnected after', attemptNumber, 'attempts')
+        setConnected(true)
+      })
+
+      newSocket.on('reconnect_error', (error) => {
+        console.error('❌ Reconnection failed:', error)
       })
 
       setSocket(newSocket)
