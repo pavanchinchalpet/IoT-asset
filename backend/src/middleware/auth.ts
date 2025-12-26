@@ -1,10 +1,11 @@
 import jwt from 'jsonwebtoken';
-import { Request, Response, NextFunction } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export interface AuthenticatedRequest extends Request {
+// Use Express Request directly with user property
+export interface AuthenticatedRequest extends express.Request {
   user?: {
     id: string;
     role: string;
