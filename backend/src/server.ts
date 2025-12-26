@@ -110,7 +110,7 @@ app.get('/api/socket-test', (req, res) => {
 // Socket.io setup
 setupSocketHandlers(io);
 
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3001;
 
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
