@@ -109,7 +109,7 @@ export default function AnalyticsPage() {
       }, {})
 
       const deviceTypes = Object.entries(deviceTypeCounts).map(([type, count]) => ({
-        name: type.charAt(0).toUpperCase() + type.slice(1),
+        name: type?.charAt(0)?.toUpperCase() + type?.slice(1) || 'Unknown',
         value: count,
         color: getTypeColor(type)
       }))

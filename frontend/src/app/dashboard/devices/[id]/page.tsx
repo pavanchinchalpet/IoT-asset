@@ -226,7 +226,7 @@ export default function DeviceDetailsPage() {
         {metrics.map((metric) => (
           <RealTimeChart
             key={metric.metric}
-            title={`${device.name} - ${metric.metric.charAt(0).toUpperCase() + metric.metric.slice(1)}`}
+            title={`${device?.name || 'Device'} - ${metric?.metric?.charAt(0)?.toUpperCase() + metric?.metric?.slice(1) || 'Metric'}`}
             deviceId={device.id}
             metric={metric.metric}
             unit={metric.unit}
@@ -288,7 +288,7 @@ export default function DeviceDetailsPage() {
               <div className="space-y-4 overflow-y-auto">
                 <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
                   <span className="text-sm text-gray-500 dark:text-gray-400">Model</span>
-                  <span className="text-sm text-gray-900 dark:text-gray-100 font-medium">Industrial {device.type.charAt(0).toUpperCase() + device.type.slice(1)} v2.1</span>
+                  <span className="text-sm text-gray-900 dark:text-gray-100 font-medium">Industrial {device?.type?.charAt(0)?.toUpperCase() + device?.type?.slice(1) || 'Device'} v2.1</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
                   <span className="text-sm text-gray-500 dark:text-gray-400">Firmware</span>

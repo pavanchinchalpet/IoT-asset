@@ -1,11 +1,11 @@
 import jwt from 'jsonwebtoken';
-import express, { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Use Express Request directly with user property
-export interface AuthenticatedRequest extends express.Request {
+// Explicitly define all Request properties we need
+export interface AuthenticatedRequest extends Request {
   user?: {
     id: string;
     role: string;
@@ -31,18 +31,29 @@ export const authenticateToken = async (
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      select: { id: true, email: true, role: true }
-    });
+    
+    // Add database connection retry logic
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.userId },
+        select: { id: true, email: true, role: true }
+      });
 
-    if (!user) {
-      res.status(401).json({ error: 'Invalid token' });
-      return;
+      if (!user) {
+        res.status(401).json({ error: 'Invalid token' });
+        return;
+      }
+
+      req.user = { id: user.id, role: user.role };
+      next();
+    } catch (dbError: any) {
+      console.error('Database error in auth middleware:', dbError.message);
+      if (dbError.message.includes("Can't reach database server")) {
+        res.status(503).json({ error: 'Database temporarily unavailable' });
+      } else {
+        res.status(500).json({ error: 'Authentication service error' });
+      }
     }
-
-    req.user = { id: user.id, role: user.role };
-    next();
   } catch (error) {
     res.status(403).json({ error: 'Invalid or expired token' });
   }
