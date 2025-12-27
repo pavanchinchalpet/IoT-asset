@@ -85,12 +85,12 @@ export default function Sidebar() {
                 <div className="flex items-center gap-x-4 px-2 py-3 text-sm font-semibold leading-6 text-gray-900 dark:text-gray-100">
                   <div className="h-8 w-8 rounded-full bg-primary-600 dark:bg-primary-500 flex items-center justify-center">
                     <span className="text-white text-sm font-medium">
-                      {user?.email.charAt(0).toUpperCase()}
+                      {user?.email?.charAt(0)?.toUpperCase() || 'U'}
                     </span>
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{user?.email}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{user?.role.toLowerCase()}</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{user?.email || 'Unknown'}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{user?.role?.toLowerCase() || 'user'}</p>
                   </div>
                 </div>
                 

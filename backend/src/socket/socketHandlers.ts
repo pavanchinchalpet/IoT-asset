@@ -152,9 +152,12 @@ export const setupSocketHandlers = (io: Server): void => {
     });
   });
 
-  // Periodic cleanup of stale devices (optimized)
+  // Periodic cleanup of stale devices (with error handling)
   setInterval(async () => {
     try {
+      // Check if database is accessible before running cleanup
+      await prisma.$connect();
+      
       const staleThreshold = new Date(Date.now() - 5 * 60 * 1000); // 5 minutes
       
       const staleDevices = await prisma.device.findMany({
@@ -189,8 +192,10 @@ export const setupSocketHandlers = (io: Server): void => {
 
         console.log(`🧹 Marked ${staleDevices.length} stale devices as offline`);
       }
-    } catch (error) {
-      console.error('Cleanup error:', error);
+    } catch (error: any) {
+      console.error('Database cleanup error (database may be sleeping):', error.message);
+      // Don't crash the server if database is temporarily unavailable
+      // Neon free tier databases sleep after inactivity
     }
   }, 60000); // Run every minute
 };

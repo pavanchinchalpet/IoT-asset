@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import axios from 'axios'
+import apiClient from '@/utils/axios'
+import { tokenCookie, debugCookies } from '@/utils/cookies'
 
 interface User {
   id: string
@@ -34,36 +36,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (isProtectedRoute && !initialized) {
+      console.log('🔐 Initializing auth for protected route:', pathname)
       setLoading(true)
       setInitialized(true)
       
       // Check for stored token on mount
-      const storedToken = localStorage.getItem('token')
+      const storedToken = tokenCookie.get()
+      console.log('🔐 Stored token exists:', !!storedToken)
+      debugCookies()
+      
       if (storedToken) {
         setToken(storedToken)
         // Verify token with server
         verifyToken(storedToken)
       } else {
+        console.log('🔐 No stored token found')
         setLoading(false)
       }
     } else if (!isProtectedRoute) {
       // For landing page, don't load auth
+      console.log('🔐 Not a protected route, skipping auth')
       setLoading(false)
     }
   }, [isProtectedRoute, initialized])
 
   const verifyToken = async (token: string) => {
     try {
-      const response = await axios.get(`${API_URL}/api/auth/me`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      console.log('🔐 Verifying token with backend...')
+      console.log('API URL:', `${API_URL}/api/auth/me`)
+      console.log('Token (first 20 chars):', token.substring(0, 20) + '...')
+      
+      const response = await apiClient.get('/api/auth/me')
+      
+      console.log('✅ Token verification successful:', response.data.user)
       setUser(response.data.user)
       setToken(token)
-    } catch (error) {
-      console.error('Token verification failed:', error)
-      localStorage.removeItem('token')
+    } catch (error: any) {
+      console.error('❌ Token verification failed:', error.response?.data || error.message)
+      console.log('🔐 Clearing invalid token from cookies')
+      tokenCookie.remove()
       setToken(null)
       setUser(null)
+      
+      // If we're on a protected route and token is invalid, redirect to login
+      if (isProtectedRoute && pathname !== '/login') {
+        console.log('🔐 Redirecting to login due to invalid token')
+        window.location.href = '/login'
+      }
     } finally {
       setLoading(false)
     }
@@ -71,7 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await axios.post(`${API_URL}/api/auth/login`, {
+      const response = await apiClient.post('/api/auth/login', {
         email,
         password
       })
@@ -79,7 +98,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { user, token } = response.data
       setUser(user)
       setToken(token)
-      localStorage.setItem('token', token)
+      
+      // Store token in secure cookie
+      tokenCookie.set(token)
     } catch (error: any) {
       throw new Error(error.response?.data?.error || 'Login failed')
     }
@@ -88,7 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     setUser(null)
     setToken(null)
-    localStorage.removeItem('token')
+    tokenCookie.remove()
   }
 
   return (

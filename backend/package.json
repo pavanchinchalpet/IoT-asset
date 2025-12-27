@@ -11,7 +11,8 @@
     "simulate": "ts-node src/simulator/runSimulation.ts",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "db:seed": "ts-node src/seed.ts"
+    "db:seed": "ts-node src/seed.ts",
+    "db:wake": "ts-node src/scripts/wakeDatabase.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.7.1",
