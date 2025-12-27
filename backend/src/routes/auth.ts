@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
-import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
+import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -99,7 +99,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
 });
 
 // Get current user
-router.get('/me', authenticateToken, (req: AuthenticatedRequest, res: Response): void => {
+router.get('/me', authenticateToken, (req: Request, res: Response): void => {
   res.json({ user: req.user });
 });
 
