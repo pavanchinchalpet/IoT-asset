@@ -1,13 +1,13 @@
-import express, { Response } from 'express';
+import express, { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { authenticateToken, AuthenticatedRequest } from '../middleware/auth';
+import { authenticateToken } from '../middleware/auth';
 import { TelemetryQuery } from '../types';
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
 // Get telemetry data for a device
-router.get('/device/:deviceId', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/device/:deviceId', authenticateToken, async (req: Request, res: Response) => {
   try {
     const { deviceId } = req.params;
     const {
@@ -46,7 +46,7 @@ router.get('/device/:deviceId', authenticateToken, async (req: AuthenticatedRequ
 });
 
 // Get latest telemetry for all devices
-router.get('/latest', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/latest', authenticateToken, async (req: Request, res: Response) => {
   try {
     const devices = await prisma.device.findMany({
       select: {
@@ -84,7 +84,7 @@ router.get('/latest', authenticateToken, async (req: AuthenticatedRequest, res: 
 });
 
 // Get aggregated telemetry data
-router.get('/aggregate/:deviceId', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
+router.get('/aggregate/:deviceId', authenticateToken, async (req: Request, res: Response): Promise<Response> => {
   try {
     const { deviceId } = req.params;
     const { metric, hours = '24' } = req.query as TelemetryQuery;

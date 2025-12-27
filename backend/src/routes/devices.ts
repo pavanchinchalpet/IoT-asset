@@ -1,13 +1,13 @@
-import express, { Response } from 'express';
+import express, { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { authenticateToken, requireRole, AuthenticatedRequest } from '../middleware/auth';
+import { authenticateToken, requireRole } from '../middleware/auth';
 import { DeviceQuery, DeviceStats } from '../types';
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
 // Get all devices with pagination and filtering
-router.get('/', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/', authenticateToken, async (req: Request, res: Response) => {
   try {
     const {
       page = '1',
@@ -64,7 +64,7 @@ router.get('/', authenticateToken, async (req: AuthenticatedRequest, res: Respon
 });
 
 // Get device by ID
-router.get('/:id', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
+router.get('/:id', authenticateToken, async (req: Request, res: Response): Promise<Response> => {
   try {
     const { id } = req.params;
 
@@ -93,7 +93,7 @@ router.get('/:id', authenticateToken, async (req: AuthenticatedRequest, res: Res
 });
 
 // Create device (Admin only)
-router.post('/', authenticateToken, requireRole(['ADMIN']), async (req: AuthenticatedRequest, res: Response) => {
+router.post('/', authenticateToken, requireRole(['ADMIN']), async (req: Request, res: Response) => {
   try {
     const { name, location, type = 'sensor' } = req.body;
 
@@ -113,7 +113,7 @@ router.post('/', authenticateToken, requireRole(['ADMIN']), async (req: Authenti
 });
 
 // Update device (Admin/Operator)
-router.put('/:id', authenticateToken, requireRole(['ADMIN', 'OPERATOR']), async (req: AuthenticatedRequest, res: Response) => {
+router.put('/:id', authenticateToken, requireRole(['ADMIN', 'OPERATOR']), async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { name, location, type } = req.body;
@@ -135,7 +135,7 @@ router.put('/:id', authenticateToken, requireRole(['ADMIN', 'OPERATOR']), async 
 });
 
 // Delete device (Admin only)
-router.delete('/:id', authenticateToken, requireRole(['ADMIN']), async (req: AuthenticatedRequest, res: Response) => {
+router.delete('/:id', authenticateToken, requireRole(['ADMIN']), async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -151,7 +151,7 @@ router.delete('/:id', authenticateToken, requireRole(['ADMIN']), async (req: Aut
 });
 
 // Get device statistics
-router.get('/stats/overview', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/stats/overview', authenticateToken, async (req: Request, res: Response) => {
   try {
     const [total, online, offline, telemetryCount] = await Promise.all([
       prisma.device.count(),

@@ -4,20 +4,12 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Explicitly define all Request properties we need
-export interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    role: string;
-  };
-}
-
 interface JWTPayload {
   userId: string;
 }
 
 export const authenticateToken = async (
-  req: AuthenticatedRequest, 
+  req: Request, 
   res: Response, 
   next: NextFunction
 ): Promise<void> => {
@@ -60,7 +52,7 @@ export const authenticateToken = async (
 };
 
 export const requireRole = (roles: string[]) => {
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
       res.status(401).json({ error: 'Authentication required' });
       return;
