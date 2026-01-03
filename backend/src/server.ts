@@ -162,13 +162,23 @@ app.get('/api/socket-test', (req, res) => {
 io.use(async (socket, next) => {
   try {
     const token = socket.handshake.auth.token;
+    const deviceId = socket.handshake.auth.deviceId;
     
+    // Allow device connections without user authentication
+    if (deviceId && !token) {
+      console.log(`🤖 Device connection allowed: ${deviceId}`);
+      socket.data.deviceId = deviceId;
+      socket.data.isDevice = true;
+      return next();
+    }
+    
+    // Require token for user connections
     if (!token) {
-      console.log('❌ Socket connection rejected: No token provided');
+      console.log('❌ Socket connection rejected: No token provided for user connection');
       return next(new Error('Authentication token required'));
     }
 
-    // Verify JWT token
+    // Verify JWT token for user connections
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
     
     // Get user from database
@@ -184,6 +194,7 @@ io.use(async (socket, next) => {
 
     // Attach user to socket
     socket.data.user = user;
+    socket.data.isDevice = false;
     console.log(`✅ Socket authenticated for user: ${user.email}`);
     next();
   } catch (error) {

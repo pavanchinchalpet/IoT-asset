@@ -24,7 +24,11 @@ class IoTDeviceSimulator {
 
   connect(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.socket = io(this.serverUrl);
+      this.socket = io(this.serverUrl, {
+        auth: {
+          deviceId: this.config.id
+        }
+      });
 
       this.socket.on('connect', () => {
         console.log(`🔌 Device ${this.config.name} connected to server`);
